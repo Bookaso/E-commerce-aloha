@@ -8,8 +8,9 @@ import {
   CircularProgress,
   Divider,
   Button,
+  CssBaseline
 } from "@material-ui/core";
-
+import { Link, useHistory } from "react-router-dom";
 import useStyle from "./style";
 import AddressForm from "../AddressForm";
 import PaymentForm from "../PaymentForm";
@@ -17,19 +18,51 @@ import PaymentForm from "../PaymentForm";
 import { commerce } from "../../../lib/commerce";
 const steps = ["Shipping address", "Payment details"];
 
-const Checkout = ({ cart }) => {
+const Checkout = ({ cart, order, onCaptureCheckout, error }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [checkoutToken, setCheckoutToken] = useState(null);
   const [shippingData, setShippingData] = useState({});
   const classes = useStyle();
+  const history = useHistory();
+  let Confirmation = () =>
+    order.customer ? (
+      <>
+        <div>
+          <Typography variant="h5">Thank you for your purchase. <br />{order.customer.firstname} {order.customer.lastname}</Typography>
+          <Divider className={classes.divider} />
+          <Typography variant="subtitle2">Order: ref: {order.customer_reference}</Typography>
+        </div>
+        <br />
+        <Button component={Link} to="/" variant="outlined" type="button">
+          Back to Home
+        </Button>
+      </>
+    ) : (
+      <div className={classes.spinner}>
+        <CircularProgress />
+      </div>
+    );
 
-  const Confirmation = () => <div>Confirmation</div>;
+  if (error) {
+    <>
+      <Typography variant="h5">Error:{error}</Typography>
+      <Button component={Link} to="/" variant="outlined" type="button">
+        Back to Home
+      </Button>
+    </>;
+  }
 
   const Form = () =>
     activeStep === 0 ? (
       <AddressForm next={next} checkoutToken={checkoutToken} />
     ) : (
-      <PaymentForm shippingData={shippingData} />
+      <PaymentForm
+        shippingData={shippingData}
+        backStep={backStep}
+        nextStep={nextStep}
+        checkoutToken={checkoutToken}
+        onCaptureCheckout={onCaptureCheckout}
+      />
     );
   useEffect(() => {
     const generateToken = async () => {
@@ -38,7 +71,9 @@ const Checkout = ({ cart }) => {
           type: "cart",
         });
         setCheckoutToken(token);
-      } catch (error) {}
+      } catch (errors) {
+        history.push('/')
+      }
     };
 
     generateToken();
@@ -51,12 +86,13 @@ const Checkout = ({ cart }) => {
     setActiveStep((prev) => prev - 1);
   };
   const next = (data) => {
-    console.log(data);
     nextStep();
     setShippingData(data);
   };
+  
   return (
     <>
+    <CssBaseline />
       <div className={classes.toolbar} />
       <main className={classes.layout}>
         <Paper className={classes.paper}>
