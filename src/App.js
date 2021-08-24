@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { commerce } from "./lib/commerce";
 
-import { Products, Navbar, Cart, Checkout } from "./components";
+import loadable from '@loadable/component'
+
+import { Products, Navbar, Cart } from "./components";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
+const Checkout = loadable(()=>import('./components/CheckoutForm/Checkout/Checkout'))
 const App = () => {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState({});
@@ -25,7 +28,8 @@ const App = () => {
   };
 
   const handleUpdateCartQty = async (productId, quantity) => {
-    const items = await commerce.cart.update(productId, { quantity });
+    const itemsFetch = commerce.cart.update(productId, { quantity });
+    const items = await itemsFetch;
     setCart(items.cart);
   };
 
@@ -61,7 +65,6 @@ const App = () => {
     fetchCart();
     fetchProducts();
   }, []);
-
   return (
     <Router>
       <div>

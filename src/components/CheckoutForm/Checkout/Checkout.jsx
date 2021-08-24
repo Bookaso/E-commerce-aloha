@@ -10,12 +10,16 @@ import {
   Button,
   CssBaseline
 } from "@material-ui/core";
+
+import loadable from '@loadable/component';
+
 import { Link, useHistory } from "react-router-dom";
 import useStyle from "./style";
-import AddressForm from "../AddressForm";
-import PaymentForm from "../PaymentForm";
-
 import { commerce } from "../../../lib/commerce";
+
+const AddressForm = loadable(()=>import( "../AddressForm"));
+const PaymentForm = loadable(()=>import( "../PaymentForm"));
+
 const steps = ["Shipping address", "Payment details"];
 
 const Checkout = ({ cart, order, onCaptureCheckout, error }) => {
@@ -24,6 +28,7 @@ const Checkout = ({ cart, order, onCaptureCheckout, error }) => {
   const [shippingData, setShippingData] = useState({});
   const classes = useStyle();
   const history = useHistory();
+
   let Confirmation = () =>
     order.customer ? (
       <>

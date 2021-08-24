@@ -1,8 +1,11 @@
 import React from "react";
+import loadable from '@loadable/component'
+
 import { Grid } from "@material-ui/core";
 
 import useStyle from "./style";
-import Product from "./Product/Product";
+
+const Product = loadable(()=>  import("./Product/Product")) ;
 
 const Products = ({ products, onAddToCart }) => {
   const classes = useStyle();
